@@ -6,3 +6,5 @@ IsoPlan is a curses based ISO/week number calendar
 * Every modification saved immediately (it's okay to run multiple instances)
 * Python configuration file `settings.py`
 
+## Screen shot:
+![In urxvt](test/screenshot.png)
