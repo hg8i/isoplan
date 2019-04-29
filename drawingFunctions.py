@@ -65,4 +65,10 @@ def _drawBoxOutline(window,y,x,h,l,char,color):
     _point(window,y+h,x+l,curses.ACS_LRCORNER)
 
 
+def _clear(window,color):
+    """ clear window """
+    h,l = window.getmaxyx()
+    _drawBox(window,0,0,h,l,"x",color)
+    # window.refresh()
+
 

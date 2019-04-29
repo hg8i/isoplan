@@ -1,3 +1,5 @@
+#!/usr/bin/env python2
+
 
 """
 # Interface for drawing the calendar in curses
@@ -29,26 +31,11 @@ class interface:
         # screen.clear()
         os.popen("rm log.txt")
 
-        self._calFrac = 0.75
         self._nWeeks = 2
 
         # loads colors
         self._loadSettings()
 
-        # make sub-windows
-        screenY,screenX = screen.getmaxyx()
-        calY = int(screenY*self._calFrac)
-        self._calScr = screen.subwin(calY,screenX,0,0)
-        textY = int(screenY*(1-self._calFrac))
-        self._textScr = screen.subwin(textY-1,screenX,calY+1,0)
-
-        self._backend = backend(self._settings)
-        # b.prevMonth()
-        # b.prevMonth()
-        # b.prevMonth()
-        self._cal = self._makeCal(self._calScr,self._nWeeks,self._nWeeks)
-
-        self._text = textView(self._textScr,self._settings,self._backend)
 
         # screen.refresh()
 
@@ -105,6 +92,9 @@ class interface:
         self._settings["dayNames"] = settings.dayNames
         self._settings["monthNames"] = settings.monthNames
 
+        self._showTextbox = settings.showTextbox
+        self._textboxFrac = settings.textboxFrac
+
     def _getNewEvent(self,day):
         """ Make new event from scratch """
         # make empty event
@@ -131,18 +121,28 @@ class interface:
     def _makeScreens(self):
         """ Make screen for text details object """
         screenY,screenX = self._screen.getmaxyx()
-        calY = int(screenY*self._calFrac)
-        calScr = self._screen.subwin(calY,screenX,0,0)
-        textY = int(screenY*(1-self._calFrac))
-        textScr = self._screen.subwin(textY-1,screenX,calY+1,0)
+        if self._showTextbox:
+            calY = int(screenY*(1-self._textboxFrac))
+            calScr = self._screen.subwin(calY,screenX,0,0)
+            textY = int(screenY*self._textboxFrac)
+            textScr = self._screen.subwin(textY-1,screenX,calY+1,0)
+        else:
+            calY = int(screenY*(1-self._textboxFrac))
+            calScr = self._screen.subwin(screenY,screenX,0,0)
+            textScr = None
         return calScr,textScr
 
     def run(self):
         """ Run loop for main program """
         nWeeks = self._nWeeks
-        calScr = self._calScr
-        textScr = self._textScr
-        backend = self._backend
+
+        # make sub-windows
+        calScr, textScr = self._makeScreens()
+        self._backend = backend(self._settings)
+        self._cal = self._makeCal(calScr,self._nWeeks,self._nWeeks)
+        self._text = textView(textScr,self._settings,self._backend)
+
+        b = self._backend
         screen = self._screen
 
         while True:
@@ -157,21 +157,21 @@ class interface:
 
             # up/down one day
             elif c == ord("h"):
-                backend.prevDay()
+                b.prevDay()
                 if self._cal.moveFocus(dayDirection=3):
                     self._cal = self._makeCal(calScr,0,nWeeks*2)
             elif c == ord("l"):
-                backend.nextDay()
+                b.nextDay()
                 if self._cal.moveFocus(dayDirection=1):
                     self._cal = self._makeCal(calScr,nWeeks*2-1,1)
 
             # down/up one week
             elif c == ord("j"):
-                backend.nextWeek()
+                b.nextWeek()
                 if self._cal.moveFocus(dayDirection=2): 
                     self._cal = self._makeCal(calScr,nWeeks*2,0)
             elif c == ord("k"):
-                backend.prevWeek()
+                b.prevWeek()
                 if self._cal.moveFocus(dayDirection=0):
                     self._cal = self._makeCal(calScr,0,nWeeks*2)
 
@@ -188,97 +188,106 @@ class interface:
 
             # center calendar on selected day
             elif c == ord("g"):
-                backend.goNow()
+                b.goNow()
                 self._cal = self._makeCal(calScr,nWeeks,nWeeks)
 
             # jump to top/bottom
             elif c == ord("H"):
                 while not self._cal.moveFocus(dayDirection=0):
-                    backend.prevWeek()
+                    b.prevWeek()
                 self._cal.update()
             elif c == ord("L"):
                 while not self._cal.moveFocus(dayDirection=2):
-                    backend.nextWeek()
+                    b.nextWeek()
                 self._cal.update()
 
 
             # up/down one month
             elif c == ord("N"):
-                backend.prevEvent()
+                b.prevEvent()
                 self._cal.update()
             elif c == ord("n"):
-                backend.nextEvent()
+                b.nextEvent()
                 self._cal.update()
 
             # create new event
             elif c == ord("i"):
-                day = backend.today()
+                day = b.today()
                 changed,event = self._getNewEvent(day)
                 if changed:
-                    backend.addEvent(day,event)
+                    b.addEvent(day,event)
                     self._cal.updateDay(day)
                 self._cal.update()
 
             # edit existing event, or create new one if empty
             elif c in [ord("c"),10]:
-                day = backend.today()
-                content = backend.getDay(day)
-                eventIndex = backend.getEventIndex()
+                day = b.today()
+                content = b.getDay(day)
+                eventIndex = b.getEventIndex()
                 if eventIndex==None: 
                     changed,event = self._getNewEvent(day)
                 else:
                     changed,event = self._changeEvent(day,content[eventIndex])
                 if changed and len(event["msg"].replace(" ",""))>0:
-                    backend.deleteEvent(day,event["id"])
-                    backend.addEvent(day,event)
+                    b.deleteEvent(day,event["id"])
+                    b.addEvent(day,event)
                 self._cal.update()
 
             # up/down one month
             elif c == ord("u"):
-                backend.prevMonth()
+                b.prevMonth()
                 self._cal = self._makeCal(calScr,nWeeks,nWeeks)
                 self._cal.update()
             elif c == ord("d"):
-                backend.nextMonth()
+                b.nextMonth()
                 self._cal = self._makeCal(calScr,nWeeks,nWeeks)
                 self._cal.update()
 
             # yank event
             elif c == ord("y"):
-                day = backend.today()
-                content = backend.getDay(day)
-                eventIndex = backend.getEventIndex()
+                day = b.today()
+                content = b.getDay(day)
+                eventIndex = b.getEventIndex()
                 if eventIndex==None: continue
                 self._eventBuffer = dict(content[eventIndex])
             # yank event
             elif c == ord("p"):
-                day = backend.today()
+                day = b.today()
                 if self._eventBuffer==None: continue
-                backend.addEvent(day,self._eventBuffer)
+                b.addEvent(day,self._eventBuffer)
                 self._cal.updateDay(day)
                 self._cal.update()
 
 
             # delete event
             elif c == ord("x"):
-                day = backend.today()
-                content = backend.getDay(day)
-                eventIndex = backend.getEventIndex()
+                day = b.today()
+                content = b.getDay(day)
+                eventIndex = b.getEventIndex()
                 if eventIndex==None: continue
                 self._eventBuffer = dict(content[eventIndex])
-                backend.deleteEvent(day,content[eventIndex]["id"])
+                b.deleteEvent(day,content[eventIndex]["id"])
                 self._cal.updateDay(day)
                 self._cal.update()
 
 
             elif c == curses.KEY_RESIZE:
                 calScr.clear()
-                textScr.clear()
+                if textScr!=None: textScr.clear()
                 screen.clear()
                 calScr, textScr = self._makeScreens()
                 screen.refresh()
-                self._text.update(textScr)
                 self._cal.update(calScr)
+
+            elif c == ord("t"):
+                calScr.clear()
+                if textScr!=None:
+                    textScr.clear()
+                screen.refresh()
+                self._showTextbox = not self._showTextbox
+                calScr, textScr = self._makeScreens()
+                self._cal.update(calScr)
+
             elif c == ord("q"):
                 return
             elif c == curses.KEY_UP:
@@ -287,7 +296,8 @@ class interface:
                 calScr.addstr("")
 
             # diagnostics
-            self._text.update(textScr)
+            if self._showTextbox:
+                self._text.update(textScr)
 
 
 def main(screen):
@@ -301,6 +311,7 @@ from textView import *
 from backend import *
 from editDialog import *
 import settings
+from drawingFunctions import _clear
 
 wrapper(main)
 

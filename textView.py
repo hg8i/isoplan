@@ -28,7 +28,8 @@ class textView:
         self._optionFocusColor     = setup["colors"]["focus"]
 
         self._backend = backend
-        self.update(self._window)
+        if window!=None:
+            self.update(window)
 
     def _drawBorder(self):
         # draw box border
