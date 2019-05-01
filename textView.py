@@ -1,5 +1,5 @@
 from __future__ import division
-import math, sys, time, copy
+import math, sys, copy
 import curses
 import logging
 import numpy as np
@@ -59,8 +59,12 @@ class textView:
 
         x = self._leftMargin+1
         for y,data in enumerate(content):
-            message = content[y+shift]["msg"]
-            category = content[y+shift]["category"]
+            thisLine = content[y+shift]
+            message = thisLine["msg"]
+            category = thisLine["category"]
+            eventTime = thisLine["time"]
+            if eventTime!="":
+                message="{0}: {1}".format(eventTime,message)
             if len(message)>self._width:
                 message = message[:self._width-3]
                 message+= curses.ACS_DIAMOND*3
