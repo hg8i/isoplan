@@ -63,11 +63,14 @@ class textView:
             message = thisLine["msg"]
             category = thisLine["category"]
             eventTime = thisLine["time"]
+            notes = thisLine["notes"]
             if eventTime!="":
                 message="{0}: {1}".format(eventTime,message)
+                if notes!="":
+                    message+=" -> {0}".format(notes)
             if len(message)>self._width:
                 message = message[:self._width-3]
-                message+= curses.ACS_DIAMOND*3
+                message+= str(curses.ACS_DIAMOND)*3
             # focused
             if y+shift==eventIndex:
                 # can change focus color, but choose not to
