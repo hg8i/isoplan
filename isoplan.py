@@ -217,7 +217,10 @@ class interface:
                 if changed:
                     b.addEvent(day,event)
                     self._cal.updateDay(day)
+                self._cal._clearWindow()
                 self._cal.update()
+                # screen.refresh()
+
 
             # edit existing event, or create new one if empty
             elif c in [ord("c"),10]:
