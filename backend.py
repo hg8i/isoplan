@@ -13,7 +13,7 @@ class year:
         self._calPath = setup["calPath"]
         dirPath = os.path.dirname(os.path.realpath(__file__))
         # make directory is not existing
-        os.popen("mkdir {0}/{1}".format(dirPath,self._calPath))
+        os.popen("mkdir -p {0}/{1}".format(dirPath,self._calPath))
         self._path = "{0}/{1}/{2}.pickle".format(dirPath,self._calPath,self._year)
         self._data = None
         self._load()
