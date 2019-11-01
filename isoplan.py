@@ -217,8 +217,9 @@ class interface:
                 if changed:
                     b.addEvent(day,event)
                     self._cal.updateDay(day)
-                self._cal._clearWindow()
+                self._screen.clear()
                 self._cal.update()
+                self._screen.refresh()
                 # screen.refresh()
 
 
