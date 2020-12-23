@@ -69,7 +69,8 @@ class interface:
         # parse category colors (work cal, home cal, etc)
         colors = {}
         highlights = {}
-        shift = 230
+        shift = 0
+        # shift = 230
         for i, category in enumerate(settings.userColors.keys()):
             colorPair = list(settings.userColors[category])
             curses.init_pair(shift+i*2,  colorPair[0],colorPair[1])
@@ -78,7 +79,7 @@ class interface:
             highlights[category] = shift+i*2+1
         ### Diagnostic
         # for i in range(0, 255):
-        #     self._screen.addstr(str(i-1)+" ", curses.color_pair(i))
+            # self._screen.addstr(str(i-1)+" ", curses.color_pair(i))
         # self._screen.getch()
         self._settings["colors"] = colors
         self._settings["highlights"] = highlights
@@ -92,8 +93,45 @@ class interface:
         self._settings["dayNames"] = settings.dayNames
         self._settings["monthNames"] = settings.monthNames
 
+        # download ICS calendars
+        self._settings["downloadIcsCalendars"] = settings.downloadIcsCalendars
+
         self._showTextbox = settings.showTextbox
         self._textboxFrac = settings.textboxFrac
+
+    # def _rmEventsByPattern(self):
+    #     """ Remove events with given color
+    #     """
+    #     for icsInfo in self._settings["downloadIcsCalendars"]:
+    #         icsEvents=icsDownload.getEventsWithUrl(icsInfo["url"],args=icsInfo["args"])
+    #         # add events, if not already exist
+    #         for icsEvent in icsEvents:
+    #             day           = icsEvent["day"]
+    #             event         = {}
+    #             event["id"]   = icsEvent["uniqueId"]
+    #             event["msg"]  = icsEvent["msg"]
+    #             event["time"] = icsEvent["time"]
+    #             event["notes"] = icsEvent["notes"]
+    #             event["category"] = icsInfo["color"]
+    #             self._backend.deleteEvent(day,event["id"])
+
+    def _syncIcsCalendars(self):
+        """ Download and sync calendar events from ICS
+        """
+        for icsInfo in self._settings["downloadIcsCalendars"]:
+            icsEvents=icsDownload.getEventsWithUrl(icsInfo["url"],args=icsInfo["args"])
+            # add events, if not already exist
+            for icsEvent in icsEvents:
+                day           = icsEvent["day"]
+                event         = {}
+                event["id"]   = icsEvent["uniqueId"]
+                event["msg"]  = icsEvent["msg"]
+                event["time"] = icsEvent["time"]
+                event["notes"] = icsEvent["notes"]
+                event["category"] = icsInfo["color"]
+                event["icsString"] = icsInfo["icsString"]
+                self._backend.addEvent(day,event)
+            
 
     def _getNewEvent(self,day):
         """ Make new event from scratch """
@@ -102,6 +140,9 @@ class interface:
         msg = ""
         category = self._settings["mainCategory"]
         event = {"id":uniqueId,"msg":msg,"category":category}
+        # sanitize
+        # event["msg"]=str(repr(event["msg"])[1:-1].split(r"\x")[0])
+        # event["category"]=str(repr(event["category"])[1:-1].split(r"\x")[0])
         return self._changeEvent(day,event)
 
     def _changeEvent(self,day,event):
@@ -139,11 +180,15 @@ class interface:
         # make sub-windows
         calScr, textScr = self._makeScreens()
         self._backend = backend(self._settings)
+
+
         self._cal = self._makeCal(calScr,self._nWeeks,self._nWeeks)
         self._text = textView(textScr,self._settings,self._backend)
 
         b = self._backend
         screen = self._screen
+
+        # quit()
 
         while True:
             # Store the key value in the variable `c`
@@ -222,6 +267,22 @@ class interface:
                 self._screen.refresh()
                 # screen.refresh()
 
+            # # rm events by pattern
+            # elif c == ord("e"):
+            #     self._rmEventsByPattern() 
+            #     self._screen.clear()
+            #     self._cal.update()
+            #     self._screen.refresh()
+            #     # screen.refresh()
+
+            # sync from ICS
+            elif c == ord("w"):
+                self._syncIcsCalendars() 
+                self._screen.clear()
+                self._cal.update()
+                self._screen.refresh()
+                # screen.refresh()
+
 
             # edit existing event, or create new one if empty
             elif c in [ord("c"),10]:
@@ -235,6 +296,7 @@ class interface:
                 if changed and len(event["msg"].replace(" ",""))>0:
                     b.deleteEvent(day,event["id"])
                     b.addEvent(day,event)
+                self._cal.updateDay(day)
                 self._cal.update()
 
             # up/down one month
@@ -314,6 +376,7 @@ from calendarView import *
 from textView import *
 from backend import *
 from editDialog import *
+import icsDownload
 import settings
 from drawingFunctions import _clear
 

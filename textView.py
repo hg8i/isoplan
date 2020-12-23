@@ -61,16 +61,18 @@ class textView:
         for y,data in enumerate(content):
             thisLine = content[y+shift]
             message = thisLine["msg"]
-            category = thisLine["category"]
-            eventTime = thisLine["time"]
-            notes = thisLine["notes"]
+            category  = thisLine["category"] if "category" in thisLine.keys() else ""
+            eventTime = thisLine["time"]     if "time" in thisLine.keys() else ""
+            notes     = thisLine["notes"]    if "notes" in thisLine.keys() else ""
+            truncated=False
             if eventTime!="":
                 message="{0}: {1}".format(eventTime,message)
-                if notes!="":
-                    message+=" -> {0}".format(notes)
-            if len(message)>self._width:
-                message = message[:self._width-3]
-                message+= str(curses.ACS_DIAMOND)*3
+            else: message=">> {0}".format(message)
+            if notes!="":
+                message+=" -> {0}".format(notes)
+            if len(message)>self._width-4:
+                message=message[:self._width-6]
+                truncated=True
             # focused
             if y+shift==eventIndex:
                 # can change focus color, but choose not to
@@ -80,6 +82,9 @@ class textView:
             else: # regular
                 color = setup["colors"][category] if category in setup["colors"].keys() else self._optionRegularColor
             _text(self._window,self._topMargin+y+1,self._leftMargin+4,message,color=color)
+            # diamond indicate truncated info
+            if truncated:
+                _point(self._window,self._topMargin+y+1,self._leftMargin+self._width-1,curses.ACS_DIAMOND,color=color)
             # draw cutoff message if too many events
             if y>=contentHeight and y<len(content)-1: 
                 nUnseen = len(content)-contentHeight-1

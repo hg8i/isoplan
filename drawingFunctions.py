@@ -44,7 +44,12 @@ def _point(window,y,x,c,color=0):
 
 def _text(window,y,x,s,color=20):
     _move(window,int(y),int(x))
-    window.addstr(str(s),curses.color_pair(color))
+    try:
+        label=str(s)
+        window.addstr(label,curses.color_pair(color))
+    except:
+        label=repr(s)
+        window.addstr(label,curses.color_pair(color))
 
 def _drawBox(window,y,x,h,l,char,color):
     """ Draw rectangle filled with shaded character """

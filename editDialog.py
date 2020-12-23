@@ -56,6 +56,7 @@ class editDialog:
             text.do_command(character)
         return text, textWindow
 
+
     def _drawData(self):
         """ Draw data corresponding to this day 
             Creates self._inputs, which stores the textboxes
@@ -73,6 +74,14 @@ class editDialog:
         if "notes" not in data.keys(): data["notes"] = ""
         inputsToShow = data.keys()
         inputsToShow.pop(inputsToShow.index("id"))
+        # ordering
+        def sortOrder(x):
+            if x=="msg": return 1
+            if x=="category": return 2
+            if x=="time": return 3
+            if x=="notes": return 4
+            else: return 5
+        inputsToShow=sorted(inputsToShow,key=sortOrder)
         shift = 3
         leftMargin = 2
 
@@ -83,7 +92,7 @@ class editDialog:
         self._inputs = []
 
         for iKey, key in enumerate(inputsToShow):
-            yPos=int(iKey*max(1,spacing)) + shift
+            yPos=int(iKey*max(3,spacing)) + shift
             if yPos+2>self._screenY:
                 nUnseen = len(data.keys())-self._screenY+4
                 keyLine = "... {0} additional parameter{1} ...".format(nUnseen,["","s"][nUnseen>1])
@@ -116,6 +125,7 @@ class editDialog:
         new = text.gather()[:-1]
         # remove trailing spaces
         new = new.replace("\x02"," ")
+        new = new.replace("\x00"," ") # ugh, changed in update
         while len(new)>0 and new[-1]==" ": new=new[:-1]
         self._data[name] = new
         curses.curs_set(0)
@@ -149,6 +159,8 @@ class editDialog:
     def finish(self,changed,data):
         """ Clean up screen, return info """
         self._window.clear()
+        # data["msg"]="newEvent"
+        # data["category"]="newCat"
         # self._window.refresh()
         if not self._anyChangesMade:
             changed=False

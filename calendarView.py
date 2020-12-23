@@ -146,7 +146,12 @@ class calendarView:
 
     def _text(self,y,x,s,color=0):
         self._move(int(y),int(x))
-        self._window.addstr(str(s),curses.color_pair(color))
+        try:
+            label=str(s)
+            self._window.addstr(label,curses.color_pair(color))
+        except:
+            label=repr(s)
+            self._window.addstr(label,curses.color_pair(color))
 
     def _drawBox(self,y,x,h,l,char,color):
         """ Draw rectangle filled with shaded character """
@@ -317,6 +322,9 @@ class calendarView:
 
         # message for truncated lines
         if len(content)>self._cellH-2:
+            # clear line
+            self._text(locsY[rowNumber+1]-1,locsX[colNumber]+1," "*(self._cellL-1),color=boxColor)
+            # make new line
             message = "{0} more...".format(len(content)-self._cellH+2)
             if len(message)<self._cellL-3:
                 self._text(locsY[rowNumber+1]-1,locsX[colNumber]+4,message,color=boxColor)

@@ -44,7 +44,13 @@ class year:
         if len(newEvent["msg"].replace(" ",""))==0: return
         if day not in self._data.keys():
             self._data[day]=[]
-        self._data[day].append(newEvent)
+        # only add event if uniqueId doesn't already exist
+        uniqueIds = [d["id"] for d in self._data[day] if "id" in d.keys()]
+        if newEvent["id"] not in uniqueIds:
+            self._data[day].append(newEvent)
+        # sort by time
+        f = lambda x: x["time"] if "time" in x.keys() else 0
+        self._data[day]=sorted(self._data[day],key=f)
         # update saved database after making a change
         self._update()
 
@@ -62,6 +68,9 @@ class year:
         """ Return dicts corresponding to day """
         if day not in self._data.keys():
             self._data[day]=[]
+        # sort by time
+        f = lambda x: x["time"] if "time" in x.keys() else 0
+        self._data[day]=sorted(self._data[day],key=f)
         return self._data[day]
     
 
