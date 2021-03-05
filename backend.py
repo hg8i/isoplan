@@ -16,6 +16,7 @@ class year:
         os.popen("mkdir -p {0}/{1}".format(dirPath,self._calPath))
         self._path = "{0}/{1}/{2}.pickle".format(dirPath,self._calPath,self._year)
         self._data = None
+        self._fileModifiedTimeOnLoad = None 
         self._load()
 
     def _load(self):
@@ -28,11 +29,31 @@ class year:
             self._data = {}
             self._update()
 
+        # get date of last file modification
+        self._fileModifiedTimeOnLoad = os.path.getmtime(self._path)
+
+    def resolveFileConflicts(self):
+        """ If file has been modified since it was loaded, resolve conflicts
+            Return 1 if conflict resolved, 0 otherwise
+        """ 
+        # get date of last modification in case a conflict needs to be resolved
+        fileModifiedTime = os.path.getmtime(self._path)
+        if fileModifiedTime!=self._fileModifiedTimeOnLoad:
+            # save current data 
+            oldData = copy.copy(self._data)
+            # load more recent data
+            self._load()
+            print len(oldData), len(self._data)
+            # quit()
+            return 1
+        return 0
+
     def _update(self):
         """ Update the saved database after a change """
-        # print "DEBUG:: updating database",self._path
         f = open(self._path,"w")
         pickle.dump(self._data,f)
+        # update file modified
+        self._fileModifiedTimeOnLoad = os.path.getmtime(self._path)
         f.close()
 
     def addEvent(self,day,newEvent):
@@ -48,6 +69,7 @@ class year:
         uniqueIds = [d["id"] for d in self._data[day] if "id" in d.keys()]
         if newEvent["id"] not in uniqueIds:
             self._data[day].append(newEvent)
+        # self._data[day].append(newEvent)
         # sort by time
         f = lambda x: x["time"] if "time" in x.keys() else 0
         self._data[day]=sorted(self._data[day],key=f)
@@ -65,7 +87,8 @@ class year:
         self._update()
 
     def getDay(self,day):
-        """ Return dicts corresponding to day """
+        """ Return dicts corresponding to day 
+        """
         if day not in self._data.keys():
             self._data[day]=[]
         # sort by time
@@ -96,6 +119,15 @@ class backend:
         self._now = datetime.date(now.year,now.month,now.day)
         self._eventIndex = 0 # which event in the day is in focus
         self._years = {}
+
+    def resolveFileConflicts(self):
+        """ If a loaded year file has been modified since it was loaded, resolve conflicts
+            Return 1 if conflict resolved, 0 otherwise
+        """ 
+        conflictFound = False
+        for year in self._years.keys():
+            conflictFound = conflictFound or self._years[year].resolveFileConflicts()
+        return conflictFound
 
     def _loadDay(self,day):
         """ Loads current year into dict _years """
@@ -186,6 +218,7 @@ class backend:
         week = day.isocalendar()[1]
         year = day.isocalendar()[0]
         month = day.month
+        # if week == 53: week = 0 # python convention
         return {"week":week,"year":year,"month":month}
 
     ###### Event index controls ########

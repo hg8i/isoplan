@@ -86,6 +86,11 @@ class calendarView:
             for iDay,day in enumerate(days):
                 self._loadDayContent(day)
 
+        # remember the high and low week numbers currently displayed
+        self._displayWeekLow  = backend.getWeekNumber(offset=-weekLow)["week"]
+        self._displayWeekHigh = backend.getWeekNumber(offset=weekHigh)["week"]
+        self._displayWeekMid  = backend.getWeekNumber(offset=0)["week"]
+
 
 
     def update(self,window=None,depth=0):
@@ -180,6 +185,7 @@ class calendarView:
         for yi,y in enumerate(locsY[:-1]):
             # week labels
             label = str(weeks[yi])
+            label = label.replace("53","0")
             if self._optionWeeksVert:
                 for i in range(len(label)):
                     self._point(y+i+1,locsX[0]-1,label[i])
@@ -421,3 +427,21 @@ class calendarView:
         week = date.isocalendar()[1]
         self._loadDayContent(date)
         self._drawDayContent(week=week,day=day)
+
+    # def updateDays(self):
+    #     """ Update all days in current view """
+    #     # self._loadData()
+    #     self._drawAllContent()
+
+    def getWeekLowHigh(self):
+        focusedWeek = self._backend.toweek()
+        weekLow  = (focusedWeek-self._displayWeekLow)%53 # Week 53 (in data) is week 0 (displayed)
+        weekHigh = (self._displayWeekHigh-focusedWeek)%53
+        _print("self._weekLow,self._weekHigh",self._weekLow,self._weekHigh)
+        _print("self._displayWeekLow",self._displayWeekLow)
+        _print("self._displayWeekMid",self._displayWeekMid)
+        _print("self._displayWeekHigh",self._displayWeekHigh)
+        _print("focusedWeek",focusedWeek)
+        _print( weekLow,weekHigh)
+        # _print( weekLow,weekHigh); quit()
+        return weekLow,weekHigh

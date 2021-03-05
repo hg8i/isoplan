@@ -34,7 +34,20 @@ def icsConvertData(icsDate):
     day   = int(icsDate[6:8])
     date  = datetime.date(year,month,day)
     time=None
-    if "T"  in icsDate: time = icsDate[9:13]
+    if "T"  in icsDate: 
+        time   = icsDate[9:13]
+        minute = icsDate[11:13]
+        hour   = icsDate[9:11]
+        # Assume offset (this is hacky, not sure if Z is timezone)
+        # This should be replaced - only because times came later
+        if "Z" in icsDate: 
+            # Increment hour and day according to timezone
+            hour=str(int(hour)+1)
+            hour="0"*(2-len(hour))+hour
+            time=hour+minute
+            # increment date incase of rollover
+            # date+=datetime.timedelta(days=1)
+    # if "Z" in icsDate: date+=datetime.timedelta(hours=1)
     return date,time
 
 def downloadIcs(url):

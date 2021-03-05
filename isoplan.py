@@ -6,6 +6,7 @@
 """
 
 from backend import *
+import random
 
 def _print(*string):
     string = [str(s) for s in string]
@@ -195,6 +196,20 @@ class interface:
             # c = screen.getch()
             c = calScr.getch()
 
+            conflictFound = b.resolveFileConflicts()
+            if conflictFound or c==ord("e"):
+
+                # # refresh calendarview with new thing
+                # self._screen.clear()
+                # # self._cal = self._makeCal(calScr,nWeeks,nWeeks)
+                # self._cal.updateDays()
+                # self._cal.update()
+                # self._screen.refresh()
+
+                # get current week low, high
+                weekLow,weekHigh = self._cal.getWeekLowHigh()
+                self._cal = self._makeCal(calScr,weekLow,weekHigh)
+
             # Clear the terminal
             # screen.clear()
             if c == ord("a"):
@@ -316,11 +331,14 @@ class interface:
                 eventIndex = b.getEventIndex()
                 if eventIndex==None: continue
                 self._eventBuffer = dict(content[eventIndex])
-            # yank event
+            # paste event
             elif c == ord("p"):
                 day = b.today()
                 if self._eventBuffer==None: continue
+                # get new random id
+                self._eventBuffer["id"] = time.time()
                 b.addEvent(day,self._eventBuffer)
+                self._eventBuffer = dict(self._eventBuffer) # keep new copy in buffer
                 self._cal.updateDay(day)
                 self._cal.update()
 

@@ -38,4 +38,6 @@ settings = {}
 
 # ICS calendars may use private keys that should be stored safely somewhere
 # How you do that is up to you
-downloadIcsCalendars = eval(open("privateSettings.py").read())
+import os
+path=os.path.dirname(os.path.abspath(__file__))
+downloadIcsCalendars = eval(open(path+"/privateSettings.py").read())

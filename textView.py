@@ -70,6 +70,7 @@ class textView:
             else: message=">> {0}".format(message)
             if notes!="":
                 message+=" -> {0}".format(notes)
+            # message+=" : {0}".format(thisLine["id"]) # show ID in textbox for debugging
             if len(message)>self._width-4:
                 message=message[:self._width-6]
                 truncated=True
