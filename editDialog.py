@@ -4,6 +4,7 @@ import curses
 import logging
 import numpy as np
 import datetime
+import textpad
 
 
 from backend import *
@@ -51,9 +52,10 @@ class editDialog:
         borderWindow.bkgd(curses.color_pair(color))
         borderWindow.border()
         textWindow = self._window.derwin(1,windowWidth-3,y,x+len(name)-0)
-        text = curses.textpad.Textbox(textWindow,insert_mode=0)
-        for i,character in enumerate(str(defaultValue)):
-            text.do_command(character)
+        text = textpad.Textbox(textWindow,windowWidth-3)
+        text.set(defaultValue)
+        # for i,character in enumerate(str(defaultValue)):
+            # text.do_command(character)
         return text, textWindow
 
 
@@ -122,7 +124,7 @@ class editDialog:
         text = self._inputs[self._focus]["text"]
         name = self._inputs[self._focus]["name"]
         text.edit(checkInput)
-        new = text.gather()[:-1]
+        new = text.gather()
         # remove trailing spaces
         new = new.replace("\x02"," ")
         new = new.replace("\x00"," ") # ugh, changed in update
@@ -138,9 +140,8 @@ class editDialog:
         window = self._inputs[self._focus]["window"]
         name = self._inputs[self._focus]["name"]
         self._data[name]=""
-        text.do_command(curses.ascii.SOH)
-        for i in range(len(content)):
-            text.do_command(curses.ascii.EOT)
+        text.set("")
+
 
         window.refresh()
         self._window.refresh()
@@ -175,7 +176,7 @@ class editDialog:
             else:
                 c = self._window.getch()
 
-            if c==ord("q"):
+            if False:
                 pass
             elif c == ord("j"):
                 self._nextFocus()
@@ -198,7 +199,7 @@ class editDialog:
                 self.update(self._window)
                 self._window.refresh()
             # press escape to cancel
-            elif c in [27,ord("x")]:
+            elif c in [27,ord("x"),ord("q")]:
                 return self.finish(False, self._origData)
             # press enter to save
             elif c in [10,ord("w")]:
@@ -250,7 +251,7 @@ def mainTest(screen):
 if __name__=="__main__":
     from curses import wrapper
     import curses
-    import curses.textpad as textpad
+    import textpad
     wrapper(mainTest)
 
 
