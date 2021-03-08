@@ -114,10 +114,8 @@ class year:
 class backend:
     def __init__(self,setup):
         self._setup = setup
-        now = datetime.datetime.now()
-        self._today = datetime.date(now.year,now.month,now.day)
-        self._now = datetime.date(now.year,now.month,now.day)
-        self._eventIndex = 0 # which event in the day is in focus
+        # self._eventIndex = 0 # which event in the day is in focus
+        self.goNow()
         self._years = {}
 
     def resolveFileConflicts(self):
@@ -278,10 +276,12 @@ class backend:
     def goNow(self):
         """ Go to current real day """
         self._eventIndex = 0
-        self._today = self._now
+        self._today = self.now()
 
     def now(self):
         """ Return now """
+        now = datetime.datetime.now()
+        self._now = datetime.date(now.year,now.month,now.day)
         return self._now
 
 
