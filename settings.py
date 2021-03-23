@@ -40,4 +40,9 @@ settings = {}
 # How you do that is up to you
 import os
 path=os.path.dirname(os.path.abspath(__file__))
-downloadIcsCalendars = eval(open(path+"/privateSettings.py").read())
+privateSettingsPath = path+"/privateSettings.py"
+# create if needed
+if not os.path.exists(privateSettingsPath):
+    downloadIcsCalendars=[]
+else:
+    downloadIcsCalendars = eval(open(privateSettingsPath).read())
