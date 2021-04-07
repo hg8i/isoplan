@@ -15,7 +15,7 @@ class year:
         # make directory is not existing
         os.popen("mkdir -p {0}/{1}".format(dirPath,self._calPath))
         self._path = "{0}/{1}/{2}.pickle".format(dirPath,self._calPath,self._year)
-        self._data = None
+        self._singleEventData = None
         self._fileModifiedTimeOnLoad = None 
         self._load()
 
@@ -23,10 +23,10 @@ class year:
         """ Load data for this year """
         # check if file exists, otherwise make new
         if os.path.isfile(self._path):
-            self._data = pickle.load(open(self._path))
+            self._singleEventData = pickle.load(open(self._path))
         else:
             # print "DEBUG:: creating new year file"
-            self._data = {}
+            self._singleEventData = {}
             self._update()
 
         # get date of last file modification
@@ -40,10 +40,10 @@ class year:
         fileModifiedTime = os.path.getmtime(self._path)
         if fileModifiedTime!=self._fileModifiedTimeOnLoad:
             # save current data 
-            oldData = copy.copy(self._data)
+            oldData = copy.copy(self._singleEventData)
             # load more recent data
             self._load()
-            print len(oldData), len(self._data)
+            print len(oldData), len(self._singleEventData)
             # quit()
             return 1
         return 0
@@ -51,7 +51,7 @@ class year:
     def _update(self):
         """ Update the saved database after a change """
         f = open(self._path,"w")
-        pickle.dump(self._data,f)
+        pickle.dump(self._singleEventData,f)
         # update file modified
         self._fileModifiedTimeOnLoad = os.path.getmtime(self._path)
         f.close()
@@ -63,25 +63,25 @@ class year:
         """
         # print "DEBUG:: adding event"
         if len(newEvent["msg"].replace(" ",""))==0: return
-        if day not in self._data.keys():
-            self._data[day]=[]
+        if day not in self._singleEventData.keys():
+            self._singleEventData[day]=[]
         # only add event if uniqueId doesn't already exist
-        uniqueIds = [d["id"] for d in self._data[day] if "id" in d.keys()]
+        uniqueIds = [d["id"] for d in self._singleEventData[day] if "id" in d.keys()]
         if newEvent["id"] not in uniqueIds:
-            self._data[day].append(newEvent)
-        # self._data[day].append(newEvent)
+            self._singleEventData[day].append(newEvent)
+        # self._singleEventData[day].append(newEvent)
         # sort by time
         f = lambda x: x["time"] if "time" in x.keys() else 0
-        self._data[day]=sorted(self._data[day],key=f)
+        self._singleEventData[day]=sorted(self._singleEventData[day],key=f)
         # update saved database after making a change
         self._update()
 
     def deleteEvent(self,day,uniqueId):
         """ Delete an event from the dataset based on the day, ID
         """
-        for iEvent,event in enumerate(self._data[day]):
+        for iEvent,event in enumerate(self._singleEventData[day]):
             if event["id"]==uniqueId:
-                self._data[day].pop(iEvent)
+                self._singleEventData[day].pop(iEvent)
                 break
         # update saved database after making a change
         self._update()
@@ -89,19 +89,79 @@ class year:
     def getDay(self,day):
         """ Return dicts corresponding to day 
         """
-        if day not in self._data.keys():
-            self._data[day]=[]
+        if day not in self._singleEventData.keys():
+            self._singleEventData[day]=[]
         # sort by time
         f = lambda x: x["time"] if "time" in x.keys() else 0
-        self._data[day]=sorted(self._data[day],key=f)
-        return self._data[day]
+        self._singleEventData[day]=sorted(self._singleEventData[day],key=f)
+        return self._singleEventData[day]
     
 
     def __str__(self):
-        nEvents = sum([len(x) for x in self._data.values()])
-        nDays   = len(self._data.keys())
-        # print self._data
+        nEvents = sum([len(x) for x in self._singleEventData.values()])
+        nDays   = len(self._singleEventData.keys())
+        # print self._singleEventData
         return "[Year container for {0}, {1} days, {2} events]".format(self._year,nDays,nEvents)
+
+
+# class eventPattern:
+#     def __init__(self):
+#         # matching info
+#         self._matchingDays = None # list of day-numbers [0-7] to match
+#         self._vetoDays     = None # list of days to not match
+#         self._matchBefore  = None # latest day to match until
+#         self._matchAfter   = None # earliest day to match from
+#         # event info
+#         self._msg = None
+#         self._id = None
+#         self._time = None
+#         self._notes = None
+#         self._category = None
+
+
+#     def resolve(self,day):
+#         """ Return true if this pattern matches this day
+#             Day is a datetime.date(now.year,now.month,now.day) object
+#         """
+#         if day in self._vetoDays:
+#             return False
+#         if day<self._matchAfter:
+#             return False
+#         if day>self._matchBefore:
+#             return False
+#         if day.day in self._matchingDays:
+#             return True
+#         return False
+
+#     def event(self,day):
+#         """ Returns event dictionary for this day
+#         """
+#         ret = {}
+#         ret["msg"] = self._msg
+#         ret["id"] = self._id
+#         ret["time"] = self._time
+#         ret["notes"] = self._notes
+#         ret["category"] = self._category
+#         # Specific to pattern events
+#         ret["patternEvent"] = True
+#         ret["masked"] = False
+#         return ret
+
+
+# class repeatingEvents:
+#     # Class to store patterns for repeating events, and then populate the year dictionary
+#     def __init__(self,inPath="data/repeating.pickle"):
+#         self._path = inPath
+#         if os.path.isfile(self._path):
+#             self._patterns = pickle.load(self._path)
+#         else:
+#             self._patterns = []
+
+#     def returnEventsForDay(self,day):
+#         """ Return events matching particular day
+#         """
+#         events = [p.event(day) for p in self._patterns if p.resolve(day)]
+#         return events
 
 
 

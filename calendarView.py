@@ -410,8 +410,8 @@ class calendarView:
         weekNumber = date.isocalendar()[1]
         backend = self._backend
         # check inputs
-        if weekNumber not in self._weekNumbers:
-            raise BaseException("Week {0} not in _weekNumbers {1}".format(week,self._weekNumbers))
+        # if weekNumber not in self._weekNumbers:
+            # raise BaseException("Week {0} not in _weekNumbers {1}".format(week,self._weekNumbers))
         if dayNumber<0 or dayNumber>self._nX:
             raise BaseException("Day {0} out of range".format(day))
         # add content to memory
@@ -425,6 +425,8 @@ class calendarView:
         """ Update a day based on a date object """
         day = date.weekday()
         week = date.isocalendar()[1]
+        # only update if week is visible
+        if week not in self._weekNumbers: return
         self._loadDayContent(date)
         self._drawDayContent(week=week,day=day)
 

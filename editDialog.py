@@ -67,13 +67,15 @@ class editDialog:
         dateLine = "Day: {0}".format(self._day)
         _text(self._window,0,2,dateLine, color=self._optionRegularColor)
 
+        # draw id in bottom 
+        idLine = "ID: {0}".format(self._data["id"])
+        _text(self._window,self._screenY-1,2,idLine, color=self._optionRegularColor)
+
         # debug
         _text(self._window,0,self._screenX-5,self._focus, color=self._optionRegularColor)
 
         data = self._data
         # decide what inputs to show in dialog
-        if "time" not in data.keys(): data["time"] = ""
-        if "notes" not in data.keys(): data["notes"] = ""
         inputsToShow = data.keys()
         inputsToShow.pop(inputsToShow.index("id"))
         # ordering
@@ -82,13 +84,17 @@ class editDialog:
             if x=="category": return 2
             if x=="time": return 3
             if x=="notes": return 4
-            else: return 5
+            if x=="Frequency": return 5
+            if x=="From": return 6
+            if x=="Until": return 7
+            else: return 8
         inputsToShow=sorted(inputsToShow,key=sortOrder)
         shift = 3
         leftMargin = 2
 
         # display data
-        spacing = math.floor((self._screenY-2)/len(data.keys()))
+        spacing = 1
+        # spacing = math.floor((self._screenY-2)/len(data.keys()))
         maxLenKey = max([len(k) for k in data.keys()])+2
         textBoxWidth = self._screenX-maxLenKey-leftMargin-3
         self._inputs = []

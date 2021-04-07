@@ -6,6 +6,7 @@
 """
 
 from backend import *
+from utils import *
 import random
 
 def _print(*string):
@@ -14,10 +15,6 @@ def _print(*string):
     f = open("log.txt","a")
     f.write(string+"\n")
     f.close()
-
-
-
-
 
 
 class interface:
@@ -134,17 +131,24 @@ class interface:
                 self._backend.addEvent(day,event)
             
 
-    def _getNewEvent(self,day):
+    def _getNewEvent(self,day,repeating=False):
         """ Make new event from scratch """
         # make empty event
         uniqueId = time.time()
         msg = ""
         category = self._settings["mainCategory"]
         event = {"id":uniqueId,"msg":msg,"category":category}
+        event["time"] = ""
+        event["notes"] = ""
+        if repeating:
+            event["From"] = day
+            event["Until"] = ""
+            event["Frequency"] = "Weekly"
         # sanitize
         # event["msg"]=str(repr(event["msg"])[1:-1].split(r"\x")[0])
         # event["category"]=str(repr(event["category"])[1:-1].split(r"\x")[0])
-        return self._changeEvent(day,event)
+        changed,event = self._changeEvent(day,event)
+        return changed,event
 
     def _changeEvent(self,day,event):
         """ Make new event from scratch """
@@ -152,13 +156,23 @@ class interface:
         # make screen
         screen = self._screen
         screenY,screenX = screen.getmaxyx()
-        height = min(screenY,20) - 1
+        height = min(screenY,3*len(event.keys())+4-3)
         width = min(screenX,80) - 1
         x = int((screenX-width)/2)
         y = int((screenY-height)/2)
         dialogScreen = screen.subwin(height,width,y,x)
         edits = editDialog(dialogScreen,self._settings,day,event)
-        return edits.run()
+        changed,event = edits.run()
+        # resolve until into datetime
+        if "From" in event.keys():
+            event["From"] = stringToDate(event["From"],day)
+            # if invalid date, make no change!
+            if event["From"] == None: return 0,{}
+        if "Until" in event.keys():
+            event["Until"] = stringToDate(event["Until"],day)
+            # if invalid date, make no change!
+            if event["Until"] == None: return 0,{}
+        return changed,event
 
     def _makeScreens(self):
         """ Make screen for text details object """
@@ -173,6 +187,27 @@ class interface:
             calScr = self._screen.subwin(screenY,screenX,0,0)
             textScr = None
         return calScr,textScr
+
+    def _fillInRepeatingEvents(self,event):
+        """ Fill in events from repeating event
+        """
+        if "From" not in event.keys(): return
+        day = event["From"]
+        until = event["Until"]
+
+        # if "until" is BEFORE day, switch until and day
+        if until<day:
+            day,until=until,day
+
+        # loop over and edd each event
+        if event["Frequency"]=="Weekly":
+            delta = datetime.timedelta(days=7)
+
+        while day<until:
+            event["From"] = day
+            self._backend.addEvent(day,event)
+            self._cal.updateDay(day)
+            day=day+delta
 
     def run(self):
         """ Run loop for main program """
@@ -273,7 +308,7 @@ class interface:
             # create new event
             elif c == ord("i"):
                 day = b.today()
-                changed,event = self._getNewEvent(day)
+                changed,event = self._getNewEvent(day,repeating=False)
                 if changed:
                     b.addEvent(day,event)
                     self._cal.updateDay(day)
@@ -281,6 +316,35 @@ class interface:
                 self._cal.update()
                 self._screen.refresh()
                 # screen.refresh()
+
+            # create new repeating event
+            elif c == ord("r"):
+                day = b.today()
+                changed,event = self._getNewEvent(day,repeating=True)
+                if changed:
+                    self._fillInRepeatingEvents(event)
+                # refresh
+                self._screen.clear()
+                self._cal.update()
+                self._screen.refresh()
+
+
+            # edit existing event, or create new one if empty
+            elif c in [ord("c"),10]:
+                day = b.today()
+                content = b.getDay(day)
+                eventIndex = b.getEventIndex()
+                if eventIndex==None: 
+                    changed,event = self._getNewEvent(day)
+                else:
+                    changed,event = self._changeEvent(day,content[eventIndex])
+                if changed and len(event["msg"].replace(" ",""))>0:
+                    b.deleteEvent(day,event["id"])
+                    b.addEvent(day,event)
+                if changed:
+                    self._fillInRepeatingEvents(event)
+                self._cal.updateDay(day)
+                self._cal.update()
 
             # # rm events by pattern
             # elif c == ord("e"):
@@ -297,22 +361,6 @@ class interface:
                 self._cal.update()
                 self._screen.refresh()
                 # screen.refresh()
-
-
-            # edit existing event, or create new one if empty
-            elif c in [ord("c"),10]:
-                day = b.today()
-                content = b.getDay(day)
-                eventIndex = b.getEventIndex()
-                if eventIndex==None: 
-                    changed,event = self._getNewEvent(day)
-                else:
-                    changed,event = self._changeEvent(day,content[eventIndex])
-                if changed and len(event["msg"].replace(" ",""))>0:
-                    b.deleteEvent(day,event["id"])
-                    b.addEvent(day,event)
-                self._cal.updateDay(day)
-                self._cal.update()
 
             # up/down one month
             elif c == ord("u"):
