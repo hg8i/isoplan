@@ -42,11 +42,13 @@ def icsConvertData(icsDate):
         # This should be replaced - only because times came later
         if "Z" in icsDate: 
             # Increment hour and day according to timezone
-            hour=str(int(hour)+1)
+            timezone = 2
+            hour=str(int(hour)+timezone)
             hour="0"*(2-len(hour))+hour
             time=hour+minute
             # increment date incase of rollover
             # date+=datetime.timedelta(days=1)
+            # date+=datetime.timedelta(hours=2)
     # if "Z" in icsDate: date+=datetime.timedelta(hours=1)
     return date,time
 
@@ -93,8 +95,19 @@ def getEventsWithUrl(url,args=[]):
     return events
 
 
-# url= "https://indico.cern.ch/export/categ/5273.ics?from=-31d"
-# events = getEventsWithUrl(url)
+if __name__=="__main__":
 
-# for e in events:
-#     print e
+    import settings
+    downloadIcsCalendars = settings.downloadIcsCalendars
+
+    for icsInfo in downloadIcsCalendars:
+        icsEvents=getEventsWithUrl(icsInfo["url"],args=icsInfo["args"])
+        for event in icsEvents:
+            print event["msg"], event["time"], event["notes"]
+
+
+    # url= "https://indico.cern.ch/export/categ/5273.ics?from=-31d"
+    # events = getEventsWithUrl(url)
+
+    # for e in events:
+    #     print e

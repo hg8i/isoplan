@@ -11,10 +11,10 @@ class year:
     def __init__(self,year,setup):
         self._year = year
         self._calPath = setup["calPath"]
-        dirPath = os.path.dirname(os.path.realpath(__file__))
+        # dirPath = os.path.dirname(os.path.realpath(__file__))
         # make directory is not existing
-        os.popen("mkdir -p {0}/{1}".format(dirPath,self._calPath))
-        self._path = "{0}/{1}/{2}.pickle".format(dirPath,self._calPath,self._year)
+        os.popen("mkdir -p {0}".format(self._calPath))
+        self._path = "{0}/{1}.pickle".format(self._calPath,self._year)
         self._singleEventData = None
         self._fileModifiedTimeOnLoad = None 
         self._load()
