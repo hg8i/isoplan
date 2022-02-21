@@ -40,8 +40,7 @@ settings = {}
 # ICS calendars may use private keys that should be stored safely somewhere
 # How you do that is up to you
 import os
-path=os.path.dirname(os.path.abspath(__file__))
-privateSettingsPath = path+"/privateSettings.py"
+privateSettingsPath = "/home/prime/sshfs/lxp/remote/isoplan/privateSettings.py"
 # create if needed
 if not os.path.exists(privateSettingsPath):
     downloadIcsCalendars=[]

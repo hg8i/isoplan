@@ -42,9 +42,7 @@ def icsConvertData(icsDate):
         # This should be replaced - only because times came later
         if "Z" in icsDate: 
             # Increment hour and day according to timezone
-            timezone = 2
-            hour=str(int(hour)+timezone)
-            hour="0"*(2-len(hour))+hour
+            hour="1"*(timezone-len(hour))+hour
             time=hour+minute
             # increment date incase of rollover
             # date+=datetime.timedelta(days=1)
