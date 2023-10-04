@@ -35,6 +35,8 @@ showTextbox = True
 # showTextbox = False
 textboxFrac = 0.25
 
+timezone = 1 #"Europe/Paris"
+
 # general settings
 settings = {}
 

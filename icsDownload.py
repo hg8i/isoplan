@@ -1,6 +1,7 @@
 import urllib.request
 from collections import OrderedDict
 import datetime
+import settings
 
 def _print(*string):
     string = [str(s) for s in string]
@@ -27,29 +28,48 @@ def parseEvent(primitive):
 
 def icsConvertData(icsDate):
     """ Convert ICS date and time, return """
-    # 1998 04 15 T23 59 59
-    # print "converting",icsDate
-    year  = int(icsDate[0:4])
-    month = int(icsDate[4:6])
-    day   = int(icsDate[6:8])
-    date  = datetime.date(year,month,day)
-    time=None
-    timezone=0
-    if "T"  in icsDate: 
-        time   = icsDate[9:13]
-        minute = icsDate[11:13]
-        hour   = icsDate[9:11]
-        # Assume offset (this is hacky, not sure if Z is timezone)
-        # This should be replaced - only because times came later
-        if "Z" in icsDate: 
-            # Increment hour and day according to timezone
-            hour="1"*(timezone-len(hour))+hour
-            time=hour+minute
-            # increment date incase of rollover
-            # date+=datetime.timedelta(days=1)
-            # date+=datetime.timedelta(hours=2)
-    # if "Z" in icsDate: date+=datetime.timedelta(hours=1)
+    # UTC datetime
+    utc_dt = datetime.datetime.strptime(icsDate, "%Y%m%dT%H%M%SZ")
+    # Convert to current timezone
+
+    _print(settings.timezone)
+    _print(datetime.timedelta(settings.timezone))
+    timezone = datetime.timezone(datetime.timedelta(hours=settings.timezone))
+    local_dt = utc_dt.replace(tzinfo=datetime.timezone.utc).astimezone(timezone)
+
+
+    date = local_dt.date()
+    time = local_dt.strftime("%H%M")
+
+
     return date,time
+
+# def icsConvertData(icsDate):
+#     """ Convert ICS date and time, return """
+#     # 1998 04 15 T23 59 59
+#     # print "converting",icsDate
+#     year  = int(icsDate[0:4])
+#     month = int(icsDate[4:6])
+#     day   = int(icsDate[6:8])
+#     date  = datetime.date(year,month,day)
+#     time=None
+#     timezone=0
+#     if "T"  in icsDate: 
+#         time   = icsDate[9:13]
+#         minute = icsDate[11:13]
+#         hour   = icsDate[9:11]
+#         # 2023 09 26 T 120000Z
+#         # Assume offset (this is hacky, not sure if Z is timezone)
+#         # This should be replaced - only because times came later
+#         if "Z" in icsDate: 
+#             # Increment hour and day according to timezone
+#             hour="1"*(timezone-len(hour))+hour
+#             time=hour+minute
+#             # increment date incase of rollover
+#             # date+=datetime.timedelta(days=1)
+#             # date+=datetime.timedelta(hours=2)
+#     # if "Z" in icsDate: date+=datetime.timedelta(hours=1)
+#     return date,time
 
 def downloadIcs(url):
     """ Download ICS file via URL
