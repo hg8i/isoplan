@@ -76,7 +76,7 @@ class editDialog:
 
         data = self._data
         # decide what inputs to show in dialog
-        inputsToShow = data.keys()
+        inputsToShow = list(data.keys())
         inputsToShow.pop(inputsToShow.index("id"))
         # ordering
         def sortOrder(x):

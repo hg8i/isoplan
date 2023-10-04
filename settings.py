@@ -26,7 +26,7 @@ dayNames = ["mon","tues","weds","thurs","fri","sat","sun"]
 # dayNames = ["Workday"]*7
 monthNames = ["none","jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec","extra"]
 
-calPath = "data"
+# calPath = "data"
 calPath = "/home/prime/sshfs/lxp/remote/isoplan/data"
 mainCategory = "work"
 

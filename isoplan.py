@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
 
 """
@@ -27,7 +27,7 @@ class interface:
         self._screen = screen
         curses.curs_set(0)
         # screen.clear()
-        os.popen("rm log.txt")
+        os.popen("rm log.txt 2> /dev/null")
 
         self._nWeeks = 2
 

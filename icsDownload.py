@@ -1,4 +1,4 @@
-import urllib2
+import urllib.request
 from collections import OrderedDict
 import datetime
 
@@ -22,7 +22,7 @@ def parseEvent(primitive):
             event[dat.split(":")[0]] = ":".join(dat.split(":")[1:])
         elif len(event.keys())>0:
             # Try adding to previous entry
-            event[event.keys()[-1]]
+            event[list(event.keys())[-1]]
     return event
 
 def icsConvertData(icsDate):
@@ -34,6 +34,7 @@ def icsConvertData(icsDate):
     day   = int(icsDate[6:8])
     date  = datetime.date(year,month,day)
     time=None
+    timezone=0
     if "T"  in icsDate: 
         time   = icsDate[9:13]
         minute = icsDate[11:13]
@@ -54,7 +55,8 @@ def downloadIcs(url):
     """ Download ICS file via URL
         Return as list of "event dictionaries" 
     """
-    response = urllib2.urlopen(url).read().splitlines()
+    response = urllib.request.urlopen(url).read().splitlines()
+    response = [s.decode("utf-8") for s in response]
     # checks
     if response[0]!="BEGIN:VCALENDAR": raise BaseException("Bad ICS response")
     if response[-1]!="END:VCALENDAR": raise BaseException("Bad ICS response")
@@ -83,9 +85,11 @@ def getEventsWithUrl(url,args=[]):
                 events[iEvent][key]={"date":date,"time":time}
                 # print key, date,time
         # this is the map between ICS and isocal
+        for k in event.keys():
+            _print("EVENT",k,"::::",event[k])
         # _print( event.keys())
-        events[iEvent]["day"]     = event["DTSTART;VALUE=DATE-TIME"]["date"]
-        events[iEvent]["time"]    = event["DTSTART;VALUE=DATE-TIME"]["time"]
+        events[iEvent]["day"]     = event["DTSTART"]["date"]
+        events[iEvent]["time"]    = event["DTSTART"]["time"]
         events[iEvent]["uniqueId"]= event["UID"]
         events[iEvent]["msg"]     = event["SUMMARY"]
         events[iEvent]["notes"]   = event["URL"]
@@ -101,7 +105,8 @@ if __name__=="__main__":
     for icsInfo in downloadIcsCalendars:
         icsEvents=getEventsWithUrl(icsInfo["url"],args=icsInfo["args"])
         for event in icsEvents:
-            print event["msg"], event["time"], event["notes"]
+            pass
+            # print event["msg"], event["time"], event["notes"]
 
 
     # url= "https://indico.cern.ch/export/categ/5273.ics?from=-31d"

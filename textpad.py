@@ -158,4 +158,4 @@ if __name__ == '__main__':
 
 
     str = curses.wrapper(test_editbox)
-    print 'Contents of text box:', repr(str)
+    # print 'Contents of text box:', repr(str)
