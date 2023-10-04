@@ -35,7 +35,7 @@ showTextbox = True
 # showTextbox = False
 textboxFrac = 0.25
 
-timezone = 1 #"Europe/Paris"
+timezone = 2 #"Europe/Paris" summer, adds 2 hours after UTC time
 
 # general settings
 settings = {}

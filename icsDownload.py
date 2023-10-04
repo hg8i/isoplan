@@ -37,10 +37,10 @@ def icsConvertData(icsDate):
     timezone = datetime.timezone(datetime.timedelta(hours=settings.timezone))
     local_dt = utc_dt.replace(tzinfo=datetime.timezone.utc).astimezone(timezone)
 
-
     date = local_dt.date()
     time = local_dt.strftime("%H%M")
 
+    _print(f"Parsed time {icsDate} to {date} and {time}")
 
     return date,time
 
