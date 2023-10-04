@@ -7,14 +7,9 @@
 
 from backend import *
 from utils import *
+import utils
 import random
 
-def _print(*string):
-    string = [str(s) for s in string]
-    string = " ".join(string)
-    f = open("log.txt","a")
-    f.write(string+"\n")
-    f.close()
 
 
 class interface:
@@ -27,7 +22,6 @@ class interface:
         self._screen = screen
         curses.curs_set(0)
         # screen.clear()
-        os.popen("rm log.txt 2> /dev/null")
 
         self._nWeeks = 2
 
@@ -69,12 +63,25 @@ class interface:
         highlights = {}
         shift = 0
         # shift = 230
+        # test(settings.userColors.keys())
+        utils._print(settings.userColors.keys()); 
+
         for i, category in enumerate(settings.userColors.keys()):
+            i+=100 # not sure about this, must be used elsewhere
             colorPair = list(settings.userColors[category])
             curses.init_pair(shift+i*2,  colorPair[0],colorPair[1])
             curses.init_pair(shift+i*2+1,colorPair[1],colorPair[0])
             colors[category] = shift+i*2
             highlights[category] = shift+i*2+1
+
+        # if 1:
+        #     colorPair = list(settings.userColors["work"])
+        #     curses.init_pair(shift+i*2,  colorPair[0],colorPair[1])
+        #     curses.init_pair(shift+i*2+1,colorPair[1],colorPair[0])
+        #     colors["work"] = shift+i*2
+        #     highlights["work"] = shift+i*2+1
+
+
         ### Diagnostic
         # for i in range(0, 255):
             # self._screen.addstr(str(i-1)+" ", curses.color_pair(i))
@@ -431,6 +438,8 @@ class interface:
             if self._showTextbox:
                 self._text.update(textScr)
 
+
+os.popen("rm log.txt 2> /dev/null")
 
 def main(screen):
     i = interface(screen)

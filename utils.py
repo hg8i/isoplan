@@ -1,5 +1,6 @@
 import datetime
 
+
 def _print(*string):
     string = [str(s) for s in string]
     string = " ".join(string)
