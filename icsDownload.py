@@ -2,6 +2,7 @@ import urllib.request
 from collections import OrderedDict
 import datetime
 import settings
+from multiprocessing import Manager, Process, Semaphore
 
 def _print(*string):
     string = [str(s) for s in string]
@@ -90,9 +91,12 @@ def downloadIcs(url):
         else: event.append(line)
     return events
 
-def getEventsWithUrl(url,args=[]):
+def getEventsWithUrl(sema,info,output):
     """ Download ICS file, convert for isocal, return events 
     """
+    sema.acquire()
+    url = info["url"]
+    args = info["args"]
     # add arguements if given
     if args and url[-1]!="?":url+="?"
     url+="&".join(args)
@@ -114,7 +118,9 @@ def getEventsWithUrl(url,args=[]):
         events[iEvent]["msg"]     = event["SUMMARY"]
         events[iEvent]["notes"]   = event["URL"]
 
-    return events
+    output[url] = events
+    sema.release()
+    # return events
 
 
 if __name__=="__main__":
@@ -126,7 +132,7 @@ if __name__=="__main__":
         icsEvents=getEventsWithUrl(icsInfo["url"],args=icsInfo["args"])
         for event in icsEvents:
             pass
-            # print event["msg"], event["time"], event["notes"]
+            print(event["msg"], event["time"], event["notes"])
 
 
     # url= "https://indico.cern.ch/export/categ/5273.ics?from=-31d"

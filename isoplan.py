@@ -9,7 +9,7 @@ from backend import *
 from utils import *
 import utils
 import random
-
+from multiprocessing import Manager, Process, Semaphore
 
 
 class interface:
@@ -123,8 +123,19 @@ class interface:
     def _syncIcsCalendars(self):
         """ Download and sync calendar events from ICS
         """
+        ps = []
+        sema = Semaphore(12)
+        manager = Manager()
+        output = manager.dict()
+
         for icsInfo in self._settings["downloadIcsCalendars"]:
-            icsEvents=icsDownload.getEventsWithUrl(icsInfo["url"],args=icsInfo["args"])
+            ps.append(Process(target=icsDownload.getEventsWithUrl,args=(sema,icsInfo,output)))
+            # icsEvents=icsDownload.getEventsWithUrl(icsInfo["url"],args=icsInfo["args"])
+
+        for p in ps: p.start()
+        for p in ps: p.join()
+
+        for url,icsEvents in output.items():
             # add events, if not already exist
             for icsEvent in icsEvents:
                 day           = icsEvent["day"]
@@ -136,7 +147,7 @@ class interface:
                 event["category"] = icsInfo["color"]
                 event["icsString"] = icsInfo["icsString"]
                 self._backend.addEvent(day,event)
-            
+
 
     def _getNewEvent(self,day,repeating=False):
         """ Make new event from scratch """
