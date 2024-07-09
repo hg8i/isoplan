@@ -27,7 +27,8 @@ dayNames = ["mon","tues","weds","thurs","fri","sat","sun"]
 monthNames = ["none","jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec","extra"]
 
 calPath = "data"
-calPath = "/home/prime/sshfs/lxp/remote/isoplan/data"
+calPath = "/home/prime/afs/remote/isoplan/data"
+# calPath = "/home/prime/sshfs/afs/remote/isoplan/data"
 mainCategory = "work"
 
 showTextbox = True

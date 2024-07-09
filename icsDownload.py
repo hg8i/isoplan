@@ -1,4 +1,4 @@
-import urllib2
+import urllib
 from collections import OrderedDict
 import datetime
 
@@ -101,7 +101,7 @@ if __name__=="__main__":
     for icsInfo in downloadIcsCalendars:
         icsEvents=getEventsWithUrl(icsInfo["url"],args=icsInfo["args"])
         for event in icsEvents:
-            print event["msg"], event["time"], event["notes"]
+            print(event["msg"], event["time"], event["notes"])
 
 
     # url= "https://indico.cern.ch/export/categ/5273.ics?from=-31d"

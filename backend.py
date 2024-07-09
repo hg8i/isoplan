@@ -1,8 +1,16 @@
-import cPickle as pickle
+import pickle
 import datetime, time, calendar
 import sys, os, copy
 from extra import *
 from datetime import timedelta
+
+def _print(*string):
+    string = [str(s) for s in string]
+    string = " ".join(string)
+    f = open("log.txt","a")
+    f.write(string+"\n")
+    f.close()
+
 
 """
 # Class for holding data related to a year
@@ -23,8 +31,10 @@ class year:
         """ Load data for this year """
         # check if file exists, otherwise make new
         if os.path.isfile(self._path):
-            self._singleEventData = pickle.load(open(self._path))
+            _print("About to load",self._path)
+            self._singleEventData = pickle.load(open(self._path,"rb"))
         else:
+            _print("No file to load",self._path)
             # print "DEBUG:: creating new year file"
             self._singleEventData = {}
             self._update()
@@ -43,14 +53,14 @@ class year:
             oldData = copy.copy(self._singleEventData)
             # load more recent data
             self._load()
-            print len(oldData), len(self._singleEventData)
+            print(len(oldData), len(self._singleEventData))
             # quit()
             return 1
         return 0
 
     def _update(self):
         """ Update the saved database after a change """
-        f = open(self._path,"w")
+        f = open(self._path,"wb")
         pickle.dump(self._singleEventData,f)
         # update file modified
         self._fileModifiedTimeOnLoad = os.path.getmtime(self._path)
@@ -366,22 +376,22 @@ if __name__=="__main__":
     b.addEvent(tomorrow,event)
     b.removeEvent(today,12334)
 
-    print "Today", today
+    print("Today", today)
     for e in b.getDay(today):
-        print e
-    print "Tomorrow", tomorrow
+        print(e)
+    print("Tomorrow", tomorrow)
     for e in b.getDay(tomorrow):
-        print e
+        print(e)
 
-    print "="*40
-    print b
+    print("="*40)
+    print(b)
     b.prevMonth()
     b.nextMonth()
-    print b
+    print(b)
 
-    print "="*40
-    print b.getWeek()
+    print("="*40)
+    print(b.getWeek())
     b.nextWeek()
-    print b.getWeek()
-    print "="*40
+    print(b.getWeek())
+    print("="*40)
 

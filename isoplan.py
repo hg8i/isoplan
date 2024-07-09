@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
 
 """
@@ -27,7 +27,7 @@ class interface:
         self._screen = screen
         curses.curs_set(0)
         # screen.clear()
-        os.popen("rm log.txt")
+        os.popen("rm log.txt").read()
 
         self._nWeeks = 2
 
@@ -52,6 +52,7 @@ class interface:
         # copy in global settings
         # screen.clear()
         setup.update(self._settings)
+
 
         cal = calendarView(screen,setup,backend)
         return cal
@@ -433,6 +434,7 @@ class interface:
 
 
 def main(screen):
+    _print("LOG START")
     i = interface(screen)
 
 import curses, sys, os, time
