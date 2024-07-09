@@ -42,7 +42,8 @@ class calendarView:
         self._optionYearColor          = setup["colors"]["year"]
         self._optionMonthColor         = setup["colors"]["month"]
         self._optionContentSelectColor = setup["highlights"]["select"]
-        self._optionRegularColor       = setup["colors"]["default"]
+        self._optionRegularColor       = setup["colors"]["day"]
+        self._optionWeekdayColor       = setup["colors"]["weekday"]
         self._optionFocusColor         = setup["highlights"]["focus"]
         self._optionTodayColor         = setup["colors"]["focus"]
 
@@ -190,7 +191,7 @@ class calendarView:
                 for i in range(len(label)):
                     self._point(y+i+1,locsX[0]-1,label[i])
             else:
-                self._text(y+1,locsX[0]-len(label),label[:2])
+                self._text(y+1,locsX[0]-len(label),label[:2],color=self._optionWeekdayColor)
             # month labels
             if months[yi]!=months[(yi-1)%len(months)] or yi==0:
                 label = self._monthName[months[yi]]
@@ -215,7 +216,7 @@ class calendarView:
             # center
             x+=1
             x+=math.floor((self._cellL-len(label))/2)
-            self._text(locsY[0]-1,x,label)
+            self._text(locsY[0]-1,x,label,color=self._optionWeekdayColor)
         # draw lines
         for xi,x in enumerate(locsX):
             self._point(locsY[0]-1,x,curses.ACS_VLINE)

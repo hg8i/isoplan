@@ -71,7 +71,9 @@ class interface:
         shift = 0
         # shift = 230
         for i, category in enumerate(settings.userColors.keys()):
+            i+=1
             colorPair = list(settings.userColors[category])
+            _print(i,category,colorPair)
             curses.init_pair(shift+i*2,  colorPair[0],colorPair[1])
             curses.init_pair(shift+i*2+1,colorPair[1],colorPair[0])
             colors[category] = shift+i*2

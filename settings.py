@@ -5,6 +5,7 @@
 # First number is background, 2nd number is foreground
 userColors = {}
 userColors["work"]      = [30,-1] # turquoise
+# userColors["default"]   = [1,-1] # red
 userColors["home"]      = [33,-1] # dark blue
 userColors["travel"]    = [124,-1] # green
 userColors["crit"]      = [214,-1] # orange
@@ -12,6 +13,8 @@ userColors["grad"]      = [196,-1] # red
 # userColors["default"] = [223,-1]
 userColors["default"]   = [-1,-1]
 userColors["year"]      = [128,-1]
+userColors["day"]       = [130,-1]
+userColors["weekday"]   = [100,-1]
 userColors["month"]     = [220,-1]
 userColors["focus"]     = [39,-1]
 # userColors["select"]    = [122,0]
@@ -29,7 +32,7 @@ monthNames = ["none","jan","feb","mar","apr","may","jun","jul","aug","sep","oct"
 calPath = "data"
 calPath = "/home/prime/afs/remote/isoplan/data"
 # calPath = "/home/prime/sshfs/afs/remote/isoplan/data"
-mainCategory = "work"
+mainCategory = "test"
 
 showTextbox = True
 # showTextbox = False
