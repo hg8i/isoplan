@@ -32,7 +32,7 @@ monthNames = ["none","jan","feb","mar","apr","may","jun","jul","aug","sep","oct"
 calPath = "data"
 calPath = "/home/prime/afs/remote/isoplan/data"
 # calPath = "/home/prime/sshfs/afs/remote/isoplan/data"
-mainCategory = "test"
+mainCategory = "work"
 
 showTextbox = True
 # showTextbox = False
