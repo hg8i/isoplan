@@ -4,9 +4,9 @@
 # -1 is default
 # First number is background, 2nd number is foreground
 userColors = {}
-userColors["work"]      = [30,-1] # turquoise
+userColors["work"]      = [40,-1] # turquoise
 # userColors["default"]   = [1,-1] # red
-userColors["home"]      = [33,-1] # dark blue
+userColors["home"]      = [45,-1] # dark blue
 userColors["travel"]    = [124,-1] # green
 userColors["crit"]      = [214,-1] # orange
 userColors["grad"]      = [196,-1] # red

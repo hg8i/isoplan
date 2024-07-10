@@ -35,20 +35,31 @@ def icsConvertData(icsDate):
     day   = int(icsDate[6:8])
     date  = datetime.date(year,month,day)
     time=None
-    timezone=0
+    timezone=2
     if "T"  in icsDate: 
         time   = icsDate[9:13]
-        minute = icsDate[11:13]
-        hour   = icsDate[9:11]
+        minute = int(icsDate[11:13])
+        hour   = int(icsDate[9:11])
         # Assume offset (this is hacky, not sure if Z is timezone)
         # This should be replaced - only because times came later
-        if "Z" in icsDate: 
-            # Increment hour and day according to timezone
-            hour="1"*(timezone-len(hour))+hour
-            time=hour+minute
-            # increment date incase of rollover
-            # date+=datetime.timedelta(days=1)
-            # date+=datetime.timedelta(hours=2)
+        # hour="1"*(timezone-len(hour))+hour
+        # hour=int(hour)+timezone
+
+        time=f"{str(hour).zfill(2)}{str(minute).zfill(2)}"
+        time=f"{str(hour+1).zfill(2)}{str(minute).zfill(2)}"
+
+        # _print("DATE:",icsDate,time,hour,minute)
+
+
+        # if "Z" in icsDate: 
+        #     # Increment hour and day according to timezone
+        #     hour="1"*(timezone-len(hour))+hour
+        #     time=hour+minute
+        #     # increment date incase of rollover
+        #     # date+=datetime.timedelta(days=1)
+        #     # date+=datetime.timedelta(hours=2)
+
+    # quit()
     # if "Z" in icsDate: date+=datetime.timedelta(hours=1)
     return date,time
 

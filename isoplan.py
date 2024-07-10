@@ -126,6 +126,11 @@ class interface:
             icsEvents=icsDownload.getEventsWithUrl(icsInfo["url"],args=icsInfo["args"])
             # add events, if not already exist
             for icsEvent in icsEvents:
+                if "filter" in icsInfo.keys():
+                    name=icsEvent["msg"]
+                    if not icsInfo["filter"](name):
+                        continue
+
                 day           = icsEvent["day"]
                 event         = {}
                 event["id"]   = icsEvent["uniqueId"]
