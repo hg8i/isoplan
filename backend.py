@@ -31,7 +31,7 @@ class year:
         """ Load data for this year """
         # check if file exists, otherwise make new
         if os.path.isfile(self._path):
-            _print("About to load",self._path)
+            _print("Loading pickle:",self._path)
             self._singleEventData = pickle.load(open(self._path,"rb"))
         else:
             _print("No file to load",self._path)

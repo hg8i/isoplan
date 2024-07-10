@@ -73,7 +73,7 @@ class interface:
         for i, category in enumerate(settings.userColors.keys()):
             i+=1
             colorPair = list(settings.userColors[category])
-            _print(i,category,colorPair)
+            # _print(i,category,colorPair)
             curses.init_pair(shift+i*2,  colorPair[0],colorPair[1])
             curses.init_pair(shift+i*2+1,colorPair[1],colorPair[0])
             colors[category] = shift+i*2
@@ -119,7 +119,10 @@ class interface:
     def _syncIcsCalendars(self):
         """ Download and sync calendar events from ICS
         """
+        _print("Syncing ICS:")
+        # _print(self._settings["downloadIcsCalendars"])
         for icsInfo in self._settings["downloadIcsCalendars"]:
+            _print("Syncing icsInfo",icsInfo)
             icsEvents=icsDownload.getEventsWithUrl(icsInfo["url"],args=icsInfo["args"])
             # add events, if not already exist
             for icsEvent in icsEvents:
