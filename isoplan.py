@@ -128,6 +128,8 @@ class interface:
             for icsEvent in icsEvents:
                 if "filter" in icsInfo.keys():
                     name=icsEvent["msg"]
+                    _print("name:",name,type(name))
+                    _print("func:",icsInfo["filter"])
                     if not icsInfo["filter"](name):
                         continue
 

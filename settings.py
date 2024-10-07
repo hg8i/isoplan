@@ -21,6 +21,7 @@ userColors["focus"]     = [39,-1]
 userColors["select"]    = [145,0]
 userColors["emergency"]   = [9,-1]
 userColors["indico"]      = [240,-1]
+userColors["ccs"]       = [9,-1]
 
 userColors["dialogFocus"]   = [39,8]
 userColors["dialogBackground"]   = [-1,8]

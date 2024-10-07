@@ -35,7 +35,7 @@ def icsConvertData(icsDate):
     day   = int(icsDate[6:8])
     date  = datetime.date(year,month,day)
     time=None
-    timezone=2
+    timezone=3
     if "T"  in icsDate: 
         time   = icsDate[9:13]
         minute = int(icsDate[11:13])
@@ -45,8 +45,8 @@ def icsConvertData(icsDate):
         # hour="1"*(timezone-len(hour))+hour
         # hour=int(hour)+timezone
 
-        time=f"{str(hour).zfill(2)}{str(minute).zfill(2)}"
-        time=f"{str(hour+1).zfill(2)}{str(minute).zfill(2)}"
+        # time=f"{str(hour+timezone).zfill(2)}{str(minute).zfill(2)}"
+        time="0000"
 
         # _print("DATE:",icsDate,time,hour,minute)
 
